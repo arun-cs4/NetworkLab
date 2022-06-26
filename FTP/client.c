@@ -2,7 +2,8 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <netdb.h> 
+#include <netdb.h>
+#include <string.h>
 
 void error(char *msg)
 {
@@ -13,6 +14,7 @@ void error(char *msg)
 int main(int argc, char *argv[])
 {
     int sockfd, portno, n, option;
+    char ch;
 
     struct sockaddr_in serv_addr;
     struct hostent *server;
@@ -47,28 +49,35 @@ int main(int argc, char *argv[])
     n = write(sockfd,buffer,strlen(buffer));
     if (n < 0) 
         error("ERROR writing to socket");
+    //GET request processing
     if (option==1)
     {
+        //read file name request
         n = read(sockfd,buffer,255);
         if (n < 0)
             error("ERROR reading from socket");
         printf("%s\n",buffer);
         bzero(buffer,256);
+        //read file name request end
         // reading file name
         //read to char array and add /0 at last
         fgets(buffer,255,stdin);
+        //reading file name end
+        //writting file name to socket
         n = write(sockfd,buffer,strlen(buffer));
         if (n < 0) 
             error("ERROR writing to socket");
         bzero(buffer,256);
-        while(strcmp(buffer,"BYE")!=0)
-        {
-            n = read(sockfd,buffer,255);
+        //writting file name to socket end
+        //reading data
+        do
+        {    
+            n = read(sockfd,ch,255);
             if (n < 0)
                 error("ERROR reading from socket");
-            printf("%s\n",buffer);
-            bzero(buffer,256);
+            printf("%c",ch);
         }
+        while(ch != EOF);
 
     }
     
