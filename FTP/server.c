@@ -13,7 +13,7 @@ void error(char *msg)
 int main(int argc, char *argv[])
 {
     FILE *fp;
-    char filename[10];
+    char filename[20],ch;
     int sockfd, newsockfd, portno, clilen, option;
     char buffer[256];
     struct sockaddr_in serv_addr, cli_addr;
@@ -37,52 +37,47 @@ int main(int argc, char *argv[])
     newsockfd = accept(sockfd, (struct sockaddr *)&cli_addr, &clilen);
     if (newsockfd < 0) 
         error("ERROR on accept");
+
+//file transfer protocol
     n = read(newsockfd,buffer,255);
     if (n < 0)
         error("ERROR reading from socket");
     option = atoi(buffer);
+    // GET request processing
     if (option==1)
     {
+        //request file name
         n = write(newsockfd,"Enter file name",15);
         if (n < 0) 
             error("ERROR writing to socket");
         bzero(buffer,256);
-        n = read(newsockfd,filename,10);
+        //request file name end
+        //reading file name from socket
+        n = read(newsockfd,filename,20);
         if (n < 0)
             error("ERROR reading from socket");
-        //file name
-        puts(filename); //filename
-        fp=fopen("1.txt","r");
-        if(fp==NULL)
-        {
-            printf("error opening");
-        }
-        char c;
-        while ((c=fgetc(fp))!=EOF)
-        {
-            printf("%c",c);
-        }
+        //reading file name from socket end
+        //opening file
+        fp=fopen(filename, "r");
 
-        /*if(fp==NULL)
+        if(fp==NULL)
         {
             n = write(newsockfd,"No such a file",14);
             if (n < 0) 
                 error("ERROR writing to socket");
         }
+        //sending file 
         else
         {
-            while (fscanf(fp, "%s", buffer)!=EOF)
+            while (!feof(fp))
             {
-                n = write(newsockfd,buffer,255);
+                ch = fgetc(fp);
+                n = write(newsockfd, ch, 255);
                 if (n < 0) 
                     error("ERROR writing to socket");
-                bzero(buffer,256);
             }
-            bzero(buffer,256);
-            n = write(newsockfd,"BYE",3);
-            if (n < 0) 
-                error("ERROR writing to socket");
-        }*/
+
+        }
     }
     
     return 0;
