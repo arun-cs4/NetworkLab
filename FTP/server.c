@@ -61,6 +61,7 @@ int main(int argc, char *argv[])
         //reading file name from socket end
         //opening file
         strcpy(filename,buffer);
+        strcat(filename,".txt");
         fp=fopen(filename, "r");
         if(fp==NULL)
         {
@@ -73,17 +74,44 @@ int main(int argc, char *argv[])
         {
             bzero(buffer,256);
             ch = fgetc(fp);
-            strncat(buffer, &ch, 1);
-            while(ch != EOF);
+            buffer[0]=ch;
+            int i=1;
+            while (ch != EOF)
             {
                 ch = fgetc(fp);
-                printf("%c",ch);
-                strncat(buffer, &ch, 1);
-            }
+                buffer[i]=ch;
+                i++;
+            } 
             n = write(newsockfd, buffer, 255);
             if (n < 0) 
                 error("ERROR writing to socket");
             fclose(fp);
+        }
+    }
+    else if (option == 2)
+    {
+        n = read(newsockfd,buffer,255);
+        if (n < 0)
+            error("ERROR reading from socket");
+        strcpy(filename,buffer);
+        strcat(filename,".txt");
+        fp=fopen(filename, "w");
+        if(fp==NULL)
+        {
+            n = write(newsockfd,"can't create file",17);
+            if (n < 0) 
+                error("ERROR writing to socket");
+        }
+        else
+        {
+            n = write(newsockfd,"Send file content",17);
+            if (n < 0) 
+                error("ERROR writing to socket");
+            bzero(buffer,256);
+            n = read(newsockfd,buffer,255);
+            if (n < 0)
+            error("ERROR reading from socket");
+            fputs(buffer,fp);
         }
     }
     
