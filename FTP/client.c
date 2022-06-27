@@ -4,6 +4,7 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <string.h>
+#include <stdlib.h>
 
 void error(char *msg)
 {
@@ -43,9 +44,10 @@ int main(int argc, char *argv[])
     //file transfer protocol
 
     bzero(buffer,256);
-    printf("Enter option \n 1 for get request \n 2 for post request \n");
+    printf("Enter option \n 1 for get request \n 2 for put request \n");
     fgets(buffer,255,stdin);
     option = atoi(buffer);
+    //option writting to socket
     n = write(sockfd,buffer,strlen(buffer));
     if (n < 0) 
         error("ERROR writing to socket");
@@ -73,7 +75,27 @@ int main(int argc, char *argv[])
         n = read(sockfd, buffer, 255);
         if (n < 0)
             error("ERROR reading from socket");
-        printf("%s",buffer);
-    } 
+        puts(buffer);
+    }
+    else if (option==2)
+    {
+        printf("Enter name of file\n");
+        gets(filename);
+        bzero(buffer,256);
+        strcpy(buffer,filename);
+        n = write(sockfd,buffer,strlen(buffer));
+        if (n < 0) 
+            error("ERROR writing to socket");
+        bzero(buffer,256);
+
+        n = read(sockfd,buffer,255);
+        if (n < 0)
+            error("ERROR reading from socket");
+        puts(buffer);
+        gets(buffer);
+        n = write(sockfd,buffer,strlen(buffer));
+        if (n < 0) 
+            error("ERROR writing to socket");
+    }
     return 0;
 }
