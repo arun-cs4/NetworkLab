@@ -3,6 +3,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <stdbool.h>
+#include <string.h>
+#include <stdlib.h>
 
 void error(char *msg)
 {
@@ -53,13 +55,13 @@ int main(int argc, char *argv[])
         bzero(buffer,256);
         //request file name end
         //reading file name from socket
-        n = read(newsockfd,filename,20);
+        n = read(newsockfd,buffer,255);
         if (n < 0)
             error("ERROR reading from socket");
         //reading file name from socket end
         //opening file
+        strcpy(filename,buffer);
         fp=fopen(filename, "r");
-
         if(fp==NULL)
         {
             n = write(newsockfd,"No such a file",14);
@@ -69,14 +71,19 @@ int main(int argc, char *argv[])
         //sending file 
         else
         {
-            while (!feof(fp))
+            bzero(buffer,256);
+            ch = fgetc(fp);
+            strncat(buffer, &ch, 1);
+            while(ch != EOF);
             {
                 ch = fgetc(fp);
-                n = write(newsockfd, ch, 255);
-                if (n < 0) 
-                    error("ERROR writing to socket");
+                printf("%c",ch);
+                strncat(buffer, &ch, 1);
             }
-
+            n = write(newsockfd, buffer, 255);
+            if (n < 0) 
+                error("ERROR writing to socket");
+            fclose(fp);
         }
     }
     
