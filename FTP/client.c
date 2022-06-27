@@ -14,7 +14,7 @@ void error(char *msg)
 int main(int argc, char *argv[])
 {
     int sockfd, portno, n, option;
-    char ch;
+    char ch, filename[10];
 
     struct sockaddr_in serv_addr;
     struct hostent *server;
@@ -60,8 +60,8 @@ int main(int argc, char *argv[])
         bzero(buffer,256);
         //read file name request end
         // reading file name
-        //read to char array and add /0 at last
-        fgets(buffer,255,stdin);
+        gets(filename);
+        strcpy(buffer,filename);
         //reading file name end
         //writting file name to socket
         n = write(sockfd,buffer,strlen(buffer));
@@ -70,16 +70,10 @@ int main(int argc, char *argv[])
         bzero(buffer,256);
         //writting file name to socket end
         //reading data
-        do
-        {    
-            n = read(sockfd,ch,255);
-            if (n < 0)
-                error("ERROR reading from socket");
-            printf("%c",ch);
-        }
-        while(ch != EOF);
-
-    }
-    
+        n = read(sockfd, buffer, 255);
+        if (n < 0)
+            error("ERROR reading from socket");
+        printf("%s",buffer);
+    } 
     return 0;
 }
