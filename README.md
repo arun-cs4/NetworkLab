@@ -1,2 +1,3 @@
 # network-lab programms
-FTP and stop and wait not completed
+FTP : save server and client programs in different folders
+stop and wait not completed
